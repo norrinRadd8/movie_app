@@ -1,16 +1,21 @@
-var searchInput = document.querySelector('.search');
-var itemWrapper = document.querySelector('main');
+var searchInput = $('.search');
+var itemWrapper = $('main');
 
 function displayMatches(matches) {
-    itemWrapper.innerHTML = ''
+    itemWrapper.html('')
+
+    if(!matches) {
+        return itemWrapper.html('<p class="no-search">No results found</p>')
+    }
+
     for (var matchObj of matches) {
-        itemWrapper.insertAdjacentHTML('beforeend', `
+        itemWrapper.append(`
         <div class="movie-item" style="background-image: 
         linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-        url(${matchObj.image_url});">
-            <h3>${matchObj.title}</h3>
-            <p>${matchObj.description}</p>
-            <a href="${matchObj.imdb_url}"
+        url(${matchObj.Poster});">
+            <h3>${matchObj.Title}</h3>
+            <p>Release Year: ${matchObj.Year}</p>
+            <a data-id="${matchObj.imdbID}" href="https://www.imdb.com/title/${matchObj.imdbID}"
             target="_blank">View details</a>
         </div>
         `)
@@ -19,69 +24,72 @@ function displayMatches(matches) {
 
 function getMovieData(event) {
     var keyCode = event.keyCode;
-    var searchText = searchInput.value.trim().toLowerCase();
+    var searchText = searchInput.val().trim();
 
-    if(keyCode === 13 && searchText) {
-        var matches = []
-        for(var movie of movieData) {
-            if(movie.title.toLowerCase().includes(searchText)) {
-                matches.push(movie)
-            }
-        }
-
-         var responsePromise = fetch('https://www.omdbapi.com/?apikey=90192bc9&t=die%20hard')
-        
-         function handleResponse(responseObj) {
-            return responseObj.json()
-         }
-
-         responsePromise
-         .then(handleResponse)
-         .then(function(data) {
-            console.log(data)
-         })
-    //     responsePromise.then(function(responseObj) {
-    //         var dataPromise = responseObj.json()
-
-    //         dataPromise.then(function(data){
-    //             console.log(data)
-    //         })
-    //     })
-            
-        
-
-    //     displayMatches(matches)
-    //     }
-    // }
-        }
+    if (keyCode === 13 && searchText) {
+       $.get(`https://www.omdbapi.com/?apikey=90192bc9&s=${searchText}`)
+            .then(function (data) {
+                displayMatches(data.Search)
+            })
     }
+}
 
 function init() {
-    searchInput.addEventListener('keydown', getMovieData);
+    searchInput.keydown(getMovieData)
 }
 
 init();
+
+// ------------ Movie Details Pop-Up --------------- //
+
+// function init() {
+//     searchInput.addEventListener('keydown', getMovieData);
+//     itemWrapper.addEventListener('click', function (event) {
+//         event.preventDefault()
+
+//         var el = event.target
+
+//         if (el.tagName === 'A') {
+//             showMovieDetails(el.dataset.id)
+//         }
+//     })
+// }
+
+
+
+// function showMovieDetails(movieId) {
+    
+
+//         var responsePromise = fetch(`https://www.omdbapi.com/?apikey=90192bc9&i=${movieId}`)
+
+//         function handleResponse(responseObj) {
+//             return responseObj.json()
+//         }
+
+//         responsePromise
+//             .then(handleResponse)
+//             .then(function (data) {
+//                 var detailDisplay = document.querySelector('.detail-display')
+
+//                 detailDisplay.innerHTML = `
+//                 <h2>Title: ${data.Title}</h2>
+//                 <h3>Release Year: ${data.Year}</h3>
+//                 <p><strong>Plot:</strong> ${data.Plot}</p>
+//                 <p><strong>Genre: ${data.Genre}</p>
+//                 <a href="https://www.imdb.com/title/${data.imdbID}">View IMDB Page</a>
+            
+//                 `
+
+//                 detailDisplay.classList.remove('hide')
+                
+//             })
+    
+// }
+
+
 
 // Grab HTML elements
 // Get the input's value on enter key press
 // Grab data related to user's search
 // Inject the movie items into the DOM, based on user's search
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
